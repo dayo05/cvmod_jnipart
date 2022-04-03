@@ -7,65 +7,89 @@ using namespace cv;
 static Mat image;
 static VideoCapture video;
 
-JNIEXPORT jlong Java_me_ddayo_cvmod_client_gui_CvUtil_loadImage(JNIEnv* env, jobject obj, jstring jname)
+#define RET_NULLPTR return (long)nullptr;
+#define RET_IMAGE return (long)image.data;
+#define VALIDATE_EMPTY if(image.empty()) RET_NULLPTR
+#define NEXT_FRAME video >> image;
+#define CONVERT_TO_RGBA if(image.channels() != 4) cvtColor(image, image, COLOR_BGR2RGBA); else cvtColor(image, image, COLOR_BGRA2RGBA);
+
+JNIEXPORT JNI_POINTER Java_me_ddayo_cvmod_client_gui_CvUtil_loadImage(JNIVARS, jstring jname)
 {
 	auto name = env->GetStringUTFChars(jname, nullptr);
 	image = imread(name, IMREAD_UNCHANGED);
-	if (image.channels() != 4)
-		cvtColor(image, image, COLOR_BGR2RGBA);
-	else cvtColor(image, image, COLOR_BGRA2RGBA);
-	
 	env->ReleaseStringUTFChars(jname, name);
-	return (long)image.data;
+
+	VALIDATE_EMPTY
+	CONVERT_TO_RGBA
+	
+	RET_IMAGE
 }
 
-JNIEXPORT jlong Java_me_ddayo_cvmod_client_gui_CvUtil_loadVideo(JNIEnv* env, jobject obj, jstring jname)
+JNIEXPORT JNI_POINTER Java_me_ddayo_cvmod_client_gui_CvUtil_loadVideo(JNIVARS, jstring jname)
 {
 	auto name = env->GetStringUTFChars(jname, nullptr);
 	video = VideoCapture(name);
 	if(!video.isOpened())
 	{
 		printf("Video is not opened");
-		return (long)nullptr;
+		RET_NULLPTR
 	}
-	video >> image;
-	if (image.channels() != 4)
-		cvtColor(image, image, COLOR_BGR2RGBA);
-	else cvtColor(image, image, COLOR_BGRA2RGBA);
+	NEXT_FRAME
 	env->ReleaseStringUTFChars(jname, name);
-	return (long)image.data;
+	VALIDATE_EMPTY
+	CONVERT_TO_RGBA
+
+	RET_IMAGE
 }
 
-JNIEXPORT jlong Java_me_ddayo_cvmod_client_gui_CvUtil_nextFrame(JNIEnv* env, jobject obj)
+JNIEXPORT JNI_POINTER Java_me_ddayo_cvmod_client_gui_CvUtil_nextFrame(JNIVARS)
 {
-	video >> image;
-	if (image.channels() != 4)
-		cvtColor(image, image, COLOR_BGR2RGBA);
-	else cvtColor(image, image, COLOR_BGRA2RGBA);
-	return (long)image.data;
+	NEXT_FRAME
+	VALIDATE_EMPTY
+	CONVERT_TO_RGBA
+
+	RET_IMAGE
 }
 
-JNIEXPORT jint Java_me_ddayo_cvmod_client_gui_CvUtil_getImageWidth(JNIEnv* env, jobject obj)
+JNIEXPORT jint Java_me_ddayo_cvmod_client_gui_CvUtil_getImageWidth(JNIVARS)
 {
 	return image.cols;
 }
 
-JNIEXPORT jint Java_me_ddayo_cvmod_client_gui_CvUtil_getImageHeight(JNIEnv* env, jobject obj)
+JNIEXPORT jint Java_me_ddayo_cvmod_client_gui_CvUtil_getImageHeight(JNIVARS)
 {
 	return image.rows;
 }
 
-JNIEXPORT jint Java_me_ddayo_cvmod_client_gui_CvUtil_getImageChannels(JNIEnv* env, jobject obj)
+JNIEXPORT jint Java_me_ddayo_cvmod_client_gui_CvUtil_getImageChannels(JNIVARS)
 {
 	return image.channels();
 }
 
-JNIEXPORT jboolean Java_me_ddayo_cvmod_client_gui_CvUtil_isVideoFinished(JNIEnv* env, jobject obj)
+JNIEXPORT jboolean Java_me_ddayo_cvmod_client_gui_CvUtil_isVideoFinished(JNIVARS)
 {
 	return image.empty();
 }
 
-JNIEXPORT jlong Java_me_ddayo_cvmod_client_gui_CvUtil_getMatrix(JNIEnv* env, jobject obj)
+JNIEXPORT JNI_POINTER Java_me_ddayo_cvmod_client_gui_CvUtil_setFrame(JNIVARS, jlong pos)
 {
-	return (long)image.data;
+	video.set(CAP_PROP_POS_FRAMES, pos);
+	NEXT_FRAME
+	VALIDATE_EMPTY
+	CONVERT_TO_RGBA
+	RET_IMAGE
+}
+
+JNIEXPORT JNI_POINTER Java_me_ddayo_cvmod_client_gui_CvUtil_setMillisecond(JNIVARS, jlong pos)
+{
+	video.set(CAP_PROP_POS_MSEC, pos);
+	NEXT_FRAME
+	VALIDATE_EMPTY
+	CONVERT_TO_RGBA
+	RET_IMAGE
+}
+
+JNIEXPORT JNI_POINTER Java_me_ddayo_cvmod_client_gui_CvUtil_getMatrix(JNIVARS)
+{
+	RET_IMAGE
 }

@@ -5,14 +5,19 @@
 
 #include <jni.h>
 
+#define JNIVARS		JNIEnv* env, jobject obj
+#define JNI_POINTER jlong
+
 extern "C" {
-	JNIEXPORT jlong Java_me_ddayo_cvmod_client_gui_CvUtil_loadImage(JNIEnv*, jobject, jstring);
-	JNIEXPORT jlong Java_me_ddayo_cvmod_client_gui_CvUtil_loadVideo(JNIEnv* env, jobject obj, jstring jname);
-	JNIEXPORT jlong Java_me_ddayo_cvmod_client_gui_CvUtil_nextFrame(JNIEnv* env, jobject obj);
-	JNIEXPORT jint Java_me_ddayo_cvmod_client_gui_CvUtil_getImageWidth(JNIEnv*, jobject);
-	JNIEXPORT jint Java_me_ddayo_cvmod_client_gui_CvUtil_getImageHeight(JNIEnv*, jobject);
-	JNIEXPORT jint Java_me_ddayo_cvmod_client_gui_CvUtil_getImageChannels(JNIEnv*, jobject);
-	JNIEXPORT jboolean Java_me_ddayo_cvmod_client_gui_CvUtil_isVideoFinished(JNIEnv* env, jobject obj);
-	JNIEXPORT jlong Java_me_ddayo_cvmod_client_gui_CvUtil_getMatrix(JNIEnv*, jobject);
+	JNIEXPORT JNI_POINTER Java_me_ddayo_cvmod_client_gui_CvUtil_loadImage(JNIVARS, jstring);
+	JNIEXPORT JNI_POINTER Java_me_ddayo_cvmod_client_gui_CvUtil_loadVideo(JNIVARS, jstring jname);
+	JNIEXPORT JNI_POINTER Java_me_ddayo_cvmod_client_gui_CvUtil_nextFrame(JNIVARS);
+	JNIEXPORT jint        Java_me_ddayo_cvmod_client_gui_CvUtil_getImageWidth(JNIVARS);
+	JNIEXPORT jint        Java_me_ddayo_cvmod_client_gui_CvUtil_getImageHeight(JNIVARS);
+	JNIEXPORT jint        Java_me_ddayo_cvmod_client_gui_CvUtil_getImageChannels(JNIVARS);
+	JNIEXPORT jboolean    Java_me_ddayo_cvmod_client_gui_CvUtil_isVideoFinished(JNIVARS);
+	JNIEXPORT JNI_POINTER Java_me_ddayo_cvmod_client_gui_CvUtil_setFrame(JNIVARS, jlong pos);
+	JNIEXPORT JNI_POINTER Java_me_ddayo_cvmod_client_gui_CvUtil_setMillisecond(JNIVARS, jlong pos);
+	JNIEXPORT JNI_POINTER Java_me_ddayo_cvmod_client_gui_CvUtil_getMatrix(JNIVARS);
 }
 #endif
