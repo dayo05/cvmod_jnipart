@@ -2,6 +2,8 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgcodecs.hpp>
 
+#include <opencv2/core/ocl.hpp>
+
 using namespace cv;
 
 static Mat image;
@@ -83,9 +85,21 @@ JNIEXPORT JNI_POINTER Java_me_ddayo_cvmod_client_gui_CvUtil_setFrame(JNIVARS, jl
 JNIEXPORT JNI_POINTER Java_me_ddayo_cvmod_client_gui_CvUtil_setMillisecond(JNIVARS, jlong pos)
 {
 	video.set(CAP_PROP_POS_MSEC, pos);
-	NEXT_FRAME
-	VALIDATE_EMPTY
-	CONVERT_TO_RGBA
+	//NEXT_FRAME
+	//Mat i;
+	//video.read(i);
+	UMat row;
+	video >> row;
+	//i.copyTo(row);
+	//VALIDATE_EMPTY
+	if (row.empty()) RET_NULLPTR
+	//CONVERT_TO_RGBA
+	UMat k;
+	if (row.channels() == 3)
+		cvtColor(row, k, COLOR_BGR2RGBA);
+	else cvtColor(row, k, COLOR_BGRA2RGBA);
+	
+	k.copyTo(image);
 	RET_IMAGE
 }
 
